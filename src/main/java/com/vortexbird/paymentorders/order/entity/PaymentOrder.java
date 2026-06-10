@@ -76,6 +76,13 @@ public class PaymentOrder {
     private User approvedBy;
 
     /**
+     * Usuario que rechazó la orden.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rejected_by")
+    private User rejectedBy;
+
+    /**
      * Marca utilizada por el Stored Procedure
      * para archivar órdenes rechazadas.
      */
