@@ -1,4 +1,4 @@
-package com.samuelortega.paymentorders;
+package com.vortexbird.paymentorders;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
