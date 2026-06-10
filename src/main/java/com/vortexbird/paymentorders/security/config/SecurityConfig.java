@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 /**
  * Configuración principal de Spring Security.
@@ -44,8 +45,50 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        /*
+                         * Endpoints públicos.
+                         */
                         .requestMatchers("/api/auth/**")
                         .permitAll()
+
+                        /*
+                         * Creación de órdenes:
+                         * solo OPERATOR.
+                         */
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/orders"
+                        )
+                        .hasRole("OPERATOR")
+
+                        /*
+                         * Aprobación y rechazo:
+                         * solo ADMIN.
+                         */
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/orders/*/approve"
+                        )
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/orders/*/reject"
+                        )
+                        .hasRole("ADMIN")
+
+                        /*
+                         * Consulta de órdenes:
+                         * ADMIN y OPERATOR.
+                         */
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/orders/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "OPERATOR"
+                        )
 
                         .anyRequest()
                         .authenticated()
