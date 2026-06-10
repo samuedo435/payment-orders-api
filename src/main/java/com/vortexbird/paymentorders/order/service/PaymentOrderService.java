@@ -12,6 +12,7 @@ import com.vortexbird.paymentorders.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,6 +37,7 @@ public class PaymentOrderService {
     /**
      * Crea una nueva orden de pago.
      */
+    @Transactional
     public OrderResponse createOrder(
             CreateOrderRequest request,
             Authentication authentication
@@ -58,6 +60,7 @@ public class PaymentOrderService {
     /**
      * Obtiene todas las órdenes.
      */
+    @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
 
         return paymentOrderRepository.findAll()
@@ -69,6 +72,7 @@ public class PaymentOrderService {
     /**
      * Obtiene una orden por id.
      */
+    @Transactional(readOnly = true)
     public OrderResponse getOrderById(Long id) {
 
         PaymentOrder order = findOrder(id);
@@ -79,6 +83,7 @@ public class PaymentOrderService {
     /**
      * Aprueba una orden pendiente.
      */
+    @Transactional
     public OrderResponse approveOrder(
             Long id,
             Authentication authentication
@@ -103,6 +108,7 @@ public class PaymentOrderService {
     /**
      * Rechaza una orden pendiente.
      */
+    @Transactional
     public OrderResponse rejectOrder(
             Long id,
             Authentication authentication
