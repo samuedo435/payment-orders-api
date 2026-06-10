@@ -1,3 +1,18 @@
 spring:
-  application:
-    name: Payment Orders API
+  datasource:
+    url: jdbc:mysql://localhost:3306/payment_orders_db
+    username: vortexbird_user
+    password: Vortexbird123
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
