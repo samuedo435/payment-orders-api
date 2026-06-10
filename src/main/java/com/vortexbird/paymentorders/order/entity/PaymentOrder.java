@@ -62,6 +62,11 @@ public class PaymentOrder {
     private LocalDateTime approvedAt;
 
     /**
+     * Fecha en que la orden fue rechazada.
+     */
+    private LocalDateTime rejectedAt;
+
+    /**
      * Usuario que creó la orden.
      */
     @ManyToOne(fetch = FetchType.LAZY)
