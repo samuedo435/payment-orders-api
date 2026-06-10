@@ -53,7 +53,7 @@ public class PaymentOrder {
     /**
      * Fecha de creación.
      */
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     /**
@@ -92,5 +92,18 @@ public class PaymentOrder {
      * para archivar órdenes rechazadas.
      */
     @Column(nullable = false)
-    private Boolean archived;
+    private boolean archived;
+
+    /**
+    * Método para que status sea
+    *  PEDING por defecto
+    */
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+
+        if (status == null) {
+            status = OrderStatus.PENDING;
+        }
+    }
 }
