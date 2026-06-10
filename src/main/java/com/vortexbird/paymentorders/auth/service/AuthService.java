@@ -2,6 +2,7 @@ package com.vortexbird.paymentorders.auth.service;
 
 import com.vortexbird.paymentorders.auth.dto.LoginRequest;
 import com.vortexbird.paymentorders.auth.dto.LoginResponse;
+import com.vortexbird.paymentorders.auth.dto.UserProfileResponse;
 import com.vortexbird.paymentorders.security.jwt.JwtService;
 import com.vortexbird.paymentorders.user.entity.User;
 import com.vortexbird.paymentorders.user.repository.UserRepository;
@@ -47,6 +48,18 @@ public class AuthService {
 
         return new LoginResponse(
                 token,
+                user.getEmail(),
+                user.getRole().name()
+        );
+    }
+    public UserProfileResponse getCurrentUser(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow();
+
+        return new UserProfileResponse(
+                user.getId(),
+                user.getName(),
                 user.getEmail(),
                 user.getRole().name()
         );
