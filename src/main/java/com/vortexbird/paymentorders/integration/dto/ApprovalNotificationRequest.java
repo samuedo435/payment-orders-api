@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 /**
  * Información enviada al sistema externo
- * cuando una orden es aprobada.
+ * cuando una orden es aprobada. (Payload)
  */
 public record ApprovalNotificationRequest(
 
