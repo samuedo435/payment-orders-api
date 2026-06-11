@@ -2,7 +2,6 @@ package com.vortexbird.paymentorders.order.service;
 
 import com.vortexbird.paymentorders.exception.BusinessException;
 import com.vortexbird.paymentorders.exception.ResourceNotFoundException;
-import com.vortexbird.paymentorders.history.service.OrderStatusLogService;
 import com.vortexbird.paymentorders.integration.dto.ApprovalNotificationRequest;
 import com.vortexbird.paymentorders.integration.service.ExternalApprovalService;
 import com.vortexbird.paymentorders.order.dto.CreateOrderRequest;
@@ -38,7 +37,6 @@ public class PaymentOrderService {
 
     private final PaymentOrderRepository paymentOrderRepository;
     private final UserRepository userRepository;
-    private final OrderStatusLogService orderStatusLogService;
     private final ExternalApprovalService externalApprovalService;
     private final FileStorageService fileStorageService;
 
@@ -108,13 +106,7 @@ public class PaymentOrderService {
         order.setStatus(OrderStatus.APPROVED);
         order.setApprovedAt(LocalDateTime.now());
         order.setApprovedBy(approver);
-
-        orderStatusLogService.registerStatusChange(
-                order,
-                previousStatus,
-                OrderStatus.APPROVED,
-                approver
-        );
+        order.setLastModifiedBy(approver);
 
         externalApprovalService.notifyOrderApproved(
                 new ApprovalNotificationRequest(
@@ -151,13 +143,7 @@ public class PaymentOrderService {
         order.setStatus(OrderStatus.REJECTED);
         order.setRejectedAt(LocalDateTime.now());
         order.setRejectedBy(rejector);
-
-        orderStatusLogService.registerStatusChange(
-                order,
-                previousStatus,
-                OrderStatus.REJECTED,
-                rejector
-        );
+        order.setLastModifiedBy(rejector);
 
         PaymentOrder savedOrder =
                 paymentOrderRepository.save(order);

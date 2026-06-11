@@ -88,6 +88,13 @@ public class PaymentOrder {
     private User rejectedBy;
 
     /**
+     * Último usuario que modificó el estado.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_modified_by")
+    private User lastModifiedBy;
+
+    /**
      * Marca utilizada por el Stored Procedure
      * para archivar órdenes rechazadas.
      */
