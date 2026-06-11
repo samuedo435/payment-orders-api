@@ -2,6 +2,9 @@ package com.vortexbird.paymentorders.order.service;
 
 import com.vortexbird.paymentorders.exception.BusinessException;
 import com.vortexbird.paymentorders.exception.ResourceNotFoundException;
+import com.vortexbird.paymentorders.history.service.OrderStatusLogService;
+import com.vortexbird.paymentorders.integration.dto.ApprovalNotificationRequest;
+import com.vortexbird.paymentorders.integration.service.ExternalApprovalService;
 import com.vortexbird.paymentorders.order.dto.CreateOrderRequest;
 import com.vortexbird.paymentorders.order.dto.OrderResponse;
 import com.vortexbird.paymentorders.order.entity.OrderStatus;
@@ -33,6 +36,8 @@ public class PaymentOrderService {
 
     private final PaymentOrderRepository paymentOrderRepository;
     private final UserRepository userRepository;
+    private final OrderStatusLogService orderStatusLogService;
+    private final ExternalApprovalService externalApprovalService;
 
     /**
      * Crea una nueva orden de pago.
@@ -95,9 +100,27 @@ public class PaymentOrderService {
 
         User approver = getCurrentUser(authentication);
 
+        OrderStatus previousStatus = order.getStatus();
+
         order.setStatus(OrderStatus.APPROVED);
         order.setApprovedAt(LocalDateTime.now());
         order.setApprovedBy(approver);
+
+        orderStatusLogService.registerStatusChange(
+                order,
+                previousStatus,
+                OrderStatus.APPROVED,
+                approver
+        );
+
+        externalApprovalService.notifyOrderApproved(
+                new ApprovalNotificationRequest(
+                        order.getId(),
+                        order.getAmount(),
+                        approver.getEmail(),
+                        order.getApprovedAt()
+                )
+        );
 
         PaymentOrder savedOrder =
                 paymentOrderRepository.save(order);
@@ -120,9 +143,18 @@ public class PaymentOrderService {
 
         User rejector = getCurrentUser(authentication);
 
+        OrderStatus previousStatus = order.getStatus();
+
         order.setStatus(OrderStatus.REJECTED);
         order.setRejectedAt(LocalDateTime.now());
         order.setRejectedBy(rejector);
+
+        orderStatusLogService.registerStatusChange(
+                order,
+                previousStatus,
+                OrderStatus.REJECTED,
+                rejector
+        );
 
         PaymentOrder savedOrder =
                 paymentOrderRepository.save(order);
