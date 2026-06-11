@@ -10,12 +10,14 @@ import com.vortexbird.paymentorders.order.dto.OrderResponse;
 import com.vortexbird.paymentorders.order.entity.OrderStatus;
 import com.vortexbird.paymentorders.order.entity.PaymentOrder;
 import com.vortexbird.paymentorders.order.repository.PaymentOrderRepository;
+import com.vortexbird.paymentorders.storage.service.FileStorageService;
 import com.vortexbird.paymentorders.user.entity.User;
 import com.vortexbird.paymentorders.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +40,7 @@ public class PaymentOrderService {
     private final UserRepository userRepository;
     private final OrderStatusLogService orderStatusLogService;
     private final ExternalApprovalService externalApprovalService;
+    private final FileStorageService fileStorageService;
 
     /**
      * Crea una nueva orden de pago.
@@ -160,6 +163,30 @@ public class PaymentOrderService {
                 paymentOrderRepository.save(order);
 
         return mapToResponse(savedOrder);
+    }
+    /**
+     * Permite cargar archivos en las ordenes
+     */
+    @Transactional
+    public String uploadInvoice(
+            Long orderId,
+            MultipartFile file
+    ) {
+
+        PaymentOrder order =
+                findOrder(orderId);
+
+        String filePath =
+                fileStorageService.storeFile(
+                        file,
+                        orderId
+                );
+
+        order.setInvoicePath(filePath);
+
+        paymentOrderRepository.save(order);
+
+        return filePath;
     }
 
     private PaymentOrder findOrder(Long id) {

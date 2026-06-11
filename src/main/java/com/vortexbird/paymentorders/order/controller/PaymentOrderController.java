@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.vortexbird.paymentorders.storage.dto.FileUploadResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Expone los endpoints relacionados con
@@ -68,6 +70,25 @@ public class PaymentOrderController {
         return paymentOrderService.rejectOrder(
                 id,
                 authentication
+        );
+    }
+
+    @PostMapping("/{id}/invoice")
+    public FileUploadResponse uploadInvoice(
+            @PathVariable Long id,
+            @RequestParam("file")
+            MultipartFile file
+    ) {
+
+        String filePath =
+                paymentOrderService.uploadInvoice(
+                        id,
+                        file
+                );
+
+        return new FileUploadResponse(
+                "Invoice uploaded successfully",
+                filePath
         );
     }
 }
