@@ -31,18 +31,28 @@ public class ExternalApprovalService {
             ApprovalNotificationRequest request
     ) {
 
-        ApprovalNotificationResponse response =
-                restClient.post()
-                        .uri("/posts")
-                        .body(request)
-                        .retrieve()
-                        .body(
-                                ApprovalNotificationResponse.class
-                        );
+        try {
 
-        log.info(
-                "External notification sent successfully. Response id={}",
-                response != null ? response.id() : null
-        );
+            ApprovalNotificationResponse response =
+                    restClient.post()
+                            .uri("/posts")
+                            .body(request)
+                            .retrieve()
+                            .body(
+                                    ApprovalNotificationResponse.class
+                            );
+
+            log.info(
+                    "External notification sent successfully. Response id={}",
+                    response != null ? response.id() : null
+            );
+
+        } catch (Exception ex) {
+
+            log.error(
+                    "Error notifying external system: {}",
+                    ex.getMessage()
+            );
+        }
     }
 }
