@@ -50,6 +50,11 @@ public class SecurityConfig {
                          */
                         .requestMatchers("/api/auth/**")
                         .permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
 
                         /*
                          * Creación de órdenes:
