@@ -17,7 +17,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -173,6 +177,55 @@ public class PaymentOrderService {
         paymentOrderRepository.save(order);
 
         return filePath;
+    }
+
+    /**
+     * Obtiene la factura asociada a una orden.
+     */
+    @Transactional(readOnly = true)
+    public Resource downloadInvoice(
+            Long orderId
+    ) {
+
+        PaymentOrder order =
+                findOrder(orderId);
+
+        if (order.getInvoicePath() == null) {
+
+            throw new ResourceNotFoundException(
+                    "Invoice not found for order: "
+                            + orderId
+            );
+        }
+
+        try {
+
+            Path path =
+                    Paths.get(
+                            order.getInvoicePath()
+                    );
+
+            Resource resource =
+                    new UrlResource(
+                            path.toUri()
+                    );
+
+            if (!resource.exists()) {
+
+                throw new ResourceNotFoundException(
+                        "Invoice file not found."
+                );
+            }
+
+            return resource;
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Error loading invoice file",
+                    e
+            );
+        }
     }
 
     private PaymentOrder findOrder(Long id) {
