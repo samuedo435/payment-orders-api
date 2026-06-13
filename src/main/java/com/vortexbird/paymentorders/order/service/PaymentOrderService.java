@@ -2,6 +2,8 @@ package com.vortexbird.paymentorders.order.service;
 
 import com.vortexbird.paymentorders.exception.BusinessException;
 import com.vortexbird.paymentorders.exception.ResourceNotFoundException;
+import com.vortexbird.paymentorders.history.dto.OrderStatusHistoryResponse;
+import com.vortexbird.paymentorders.history.repository.OrderStatusLogRepository;
 import com.vortexbird.paymentorders.integration.dto.ApprovalNotificationRequest;
 import com.vortexbird.paymentorders.integration.service.ExternalApprovalService;
 import com.vortexbird.paymentorders.order.dto.CreateOrderRequest;
@@ -43,6 +45,7 @@ public class PaymentOrderService {
     private final UserRepository userRepository;
     private final ExternalApprovalService externalApprovalService;
     private final FileStorageService fileStorageService;
+    private final OrderStatusLogRepository orderStatusLogRepository;
 
     /**
      * Crea una nueva orden de pago.
@@ -226,6 +229,32 @@ public class PaymentOrderService {
                     e
             );
         }
+    }
+
+    /**
+     * Permite acceder al historial de estados
+     */
+    @Transactional(readOnly = true)
+    public List<OrderStatusHistoryResponse>
+    getOrderHistory(Long orderId) {
+
+        findOrder(orderId);
+
+        return orderStatusLogRepository
+                .findByOrderIdOrderByChangedAtDesc(
+                        orderId
+                )
+                .stream()
+                .map(log ->
+                        new OrderStatusHistoryResponse(
+                                log.getPreviousStatus(),
+                                log.getNewStatus(),
+                                log.getChangedAt(),
+                                log.getChangedBy()
+                                        .getEmail()
+                        )
+                )
+                .toList();
     }
 
     private PaymentOrder findOrder(Long id) {

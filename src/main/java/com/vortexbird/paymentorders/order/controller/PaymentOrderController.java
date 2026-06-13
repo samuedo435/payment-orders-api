@@ -1,5 +1,6 @@
 package com.vortexbird.paymentorders.order.controller;
 
+import com.vortexbird.paymentorders.history.dto.OrderStatusHistoryResponse;
 import com.vortexbird.paymentorders.order.dto.CreateOrderRequest;
 import com.vortexbird.paymentorders.order.dto.OrderResponse;
 import com.vortexbird.paymentorders.order.service.PaymentOrderService;
@@ -151,5 +152,19 @@ public class PaymentOrderController {
                         MediaType.APPLICATION_PDF
                 )
                 .body(resource);
+    }
+
+    @Operation(
+            summary = "Get order status history",
+            description = "Returns all status changes registered for a payment order."
+    )
+    @GetMapping("/{id}/history")
+    public List<OrderStatusHistoryResponse>
+    getOrderHistory(
+            @PathVariable Long id
+    ) {
+
+        return paymentOrderService
+                .getOrderHistory(id);
     }
 }
