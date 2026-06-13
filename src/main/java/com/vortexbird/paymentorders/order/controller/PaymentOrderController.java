@@ -1,6 +1,8 @@
 package com.vortexbird.paymentorders.order.controller;
 
 import com.vortexbird.paymentorders.history.dto.OrderStatusHistoryResponse;
+import com.vortexbird.paymentorders.order.dto.ArchiveOrdersRequest;
+import com.vortexbird.paymentorders.order.dto.ArchiveOrdersResponse;
 import com.vortexbird.paymentorders.order.dto.CreateOrderRequest;
 import com.vortexbird.paymentorders.order.dto.OrderResponse;
 import com.vortexbird.paymentorders.order.service.PaymentOrderService;
@@ -166,5 +168,23 @@ public class PaymentOrderController {
 
         return paymentOrderService
                 .getOrderHistory(id);
+    }
+
+    @Operation(
+            summary = "Archive rejected orders",
+            description =
+                    "Executes the maintenance stored procedure."
+    )
+    @PostMapping("/archive-orders")
+    public ArchiveOrdersResponse archiveOrders(
+            @Valid
+            @RequestBody
+            ArchiveOrdersRequest request
+    ) {
+
+        return paymentOrderService
+                .archiveRejectedOrders(
+                        request.cutoffDate()
+                );
     }
 }

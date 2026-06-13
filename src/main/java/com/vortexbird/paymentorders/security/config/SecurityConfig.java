@@ -68,7 +68,7 @@ public class SecurityConfig {
                         .hasRole("OPERATOR")
 
                         /*
-                         * Aprobación y rechazo:
+                         * Aprobación, rechazo y archivo:
                          * solo ADMIN.
                          */
                         .requestMatchers(
@@ -80,6 +80,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.PUT,
                                 "/api/orders/*/reject"
+                        )
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(
+                                "/api/orders/archive-orders"
                         )
                         .hasRole("ADMIN")
 

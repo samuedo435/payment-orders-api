@@ -6,6 +6,7 @@ import com.vortexbird.paymentorders.history.dto.OrderStatusHistoryResponse;
 import com.vortexbird.paymentorders.history.repository.OrderStatusLogRepository;
 import com.vortexbird.paymentorders.integration.dto.ApprovalNotificationRequest;
 import com.vortexbird.paymentorders.integration.service.ExternalApprovalService;
+import com.vortexbird.paymentorders.order.dto.ArchiveOrdersResponse;
 import com.vortexbird.paymentorders.order.dto.CreateOrderRequest;
 import com.vortexbird.paymentorders.order.dto.OrderResponse;
 import com.vortexbird.paymentorders.order.entity.OrderStatus;
@@ -14,6 +15,7 @@ import com.vortexbird.paymentorders.order.repository.PaymentOrderRepository;
 import com.vortexbird.paymentorders.storage.service.FileStorageService;
 import com.vortexbird.paymentorders.user.entity.User;
 import com.vortexbird.paymentorders.user.repository.UserRepository;
+import jakarta.persistence.ParameterMode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -255,6 +260,45 @@ public class PaymentOrderService {
                         )
                 )
                 .toList();
+    }
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    /**
+     * Permite ejecutar el Stored Procedure
+     */
+    @Transactional
+    public ArchiveOrdersResponse archiveRejectedOrders(
+            LocalDateTime cutoffDate
+    ) {
+
+        StoredProcedureQuery query =
+                entityManager.createStoredProcedureQuery(
+                        "sp_archive_rejected_orders"
+                );
+
+        query.registerStoredProcedureParameter(
+                1,
+                LocalDateTime.class,
+                ParameterMode.IN
+        );
+
+        query.setParameter(
+                1,
+                cutoffDate
+        );
+
+        query.execute();
+
+        Object[] result =
+                (Object[]) query
+                        .getSingleResult();
+
+        return new ArchiveOrdersResponse(
+                result[0].toString(),
+                ((Number) result[1]).intValue()
+        );
     }
 
     private PaymentOrder findOrder(Long id) {
