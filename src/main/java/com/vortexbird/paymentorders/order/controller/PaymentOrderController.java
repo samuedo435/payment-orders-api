@@ -55,13 +55,24 @@ public class PaymentOrderController {
     }
 
     @Operation(
-            summary = "Get all payment orders",
+            summary = "Get active payment orders",
             description = "Returns the list of payment orders available to the authenticated user."
     )
     @GetMapping
     public List<OrderResponse> getAllOrders() {
 
         return paymentOrderService.getAllOrders();
+    }
+
+    @Operation(
+            summary = "Get archived orders",
+            description = "Returns archived payment orders."
+    )
+    @GetMapping("/archived")
+    public List<OrderResponse> getArchivedOrders() {
+
+        return paymentOrderService
+                .getArchivedOrders();
     }
 
     @Operation(

@@ -76,12 +76,26 @@ public class PaymentOrderService {
     }
 
     /**
-     * Obtiene todas las órdenes.
+     * Obtiene las órdenes no archivadas.
      */
     @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
 
-        return paymentOrderRepository.findAll()
+        return paymentOrderRepository
+                .findByArchivedFalse()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    /**
+     * Obtiene las órdenes archivadas.
+     */
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getArchivedOrders() {
+
+        return paymentOrderRepository
+                .findByArchivedTrue()
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
